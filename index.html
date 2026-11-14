@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Production-ready POS MVP architecture and product blueprint">
+<title>RetailOS — POS MVP Blueprint</title>
+<style>
+:root{--bg:#f5f7fb;--paper:#fff;--ink:#172033;--muted:#667085;--line:#e5e9f0;--brand:#315efb;--brand2:#173bb7;--mint:#e8f7f1;--mintink:#167653;--amber:#fff5df;--amberink:#96620b;--nav:#111a2e;--shadow:0 14px 40px rgba(24,39,75,.07);--radius:18px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:88px}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}.shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.sidebar{background:var(--nav);color:#d8e0f0;padding:28px 18px;position:sticky;top:0;height:100vh;overflow:auto}.brand{display:flex;gap:12px;align-items:center;padding:0 10px 26px;border-bottom:1px solid #29334a}.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#6d8bff,#315efb);display:grid;place-items:center;color:white;font-weight:900}.brand strong{display:block;color:#fff;font-size:16px;letter-spacing:.2px}.brand small{color:#9eabc2}.nav-label{font-size:10px;letter-spacing:1.5px;color:#7e8ba5;font-weight:800;margin:24px 10px 8px}.nav a{display:flex;gap:11px;align-items:center;padding:9px 11px;margin:3px 0;border-radius:10px;color:#b8c4d9;font-size:13px}.nav a:hover,.nav a.active{background:#243352;color:#fff}.nav .n{width:20px;text-align:center;color:#8ea5ff}.side-note{margin:28px 7px 0;padding:14px;border:1px solid #2a3958;border-radius:14px;color:#aab7cf;font-size:12px}.side-note b{color:#fff;display:block;margin-bottom:4px}
+main{min-width:0}.topbar{height:66px;background:rgba(255,255,255,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,58px);position:sticky;top:0;z-index:5}.crumb{font-size:12px;color:var(--muted)}.top-right{display:flex;align-items:center;gap:10px}.pill{border:1px solid var(--line);border-radius:99px;padding:6px 11px;font-size:11px;color:#4c5a70;background:white}.pill.blue{background:#edf1ff;color:#3154d8;border-color:#dce4ff}.content{max-width:1240px;margin:auto;padding:38px clamp(20px,4vw,58px) 80px}
+.hero{position:relative;overflow:hidden;border-radius:26px;background:linear-gradient(120deg,#101d3a 0%,#203d85 58%,#315efb 100%);color:#fff;padding:clamp(28px,5vw,58px);box-shadow:var(--shadow);display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center}
+.hero:after{content:"";position:absolute;width:430px;height:430px;border:1px solid rgba(255,255,255,.13);border-radius:50%;right:-110px;top:-190px;box-shadow:0 0 0 38px rgba(255,255,255,.035),0 0 0 80px rgba(255,255,255,.025)}
+.eyebrow{font-size:11px;letter-spacing:1.8px;text-transform:uppercase;font-weight:800;color:#aebfff}.hero h1{font-size:clamp(34px,5vw,56px);line-height:1.08;letter-spacing:-1.8px;margin:14px 0}.hero p{color:#d6def4;max-width:650px;margin:0 0 22px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-block;padding:10px 15px;border-radius:10px;font-weight:750;font-size:12px;background:#fff;color:#1c3b9f}.btn.ghost{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.24);color:#fff}
+.hero-art{position:relative;z-index:1}.mock{background:#fff;color:var(--ink);border-radius:17px;padding:14px;box-shadow:0 24px 60px rgba(0,0,0,.25);transform:rotate(2deg)}.mock-head{display:flex;justify-content:space-between;font-size:10px;color:#788398;margin-bottom:12px}.mock-total{font-size:25px;font-weight:850}.mock-sub{font-size:10px;color:#7b879a}.mock-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edf0f5;font-size:11px}.mock-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px}.mock-pay{background:#315efb;color:#fff;padding:9px 16px;border-radius:8px;font-size:10px;font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:20px 0 42px}.stat,.card,.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.stat{padding:17px 19px}.stat small{color:var(--muted);font-size:11px}.stat strong{display:block;font-size:20px;margin-top:4px}.stat em{font-style:normal;color:var(--mintink);font-size:11px}
+.section{margin:54px 0}.section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:18px}.kicker{font-size:10px;letter-spacing:1.5px;color:var(--brand);font-weight:850;text-transform:uppercase}.section h2{font-size:27px;letter-spacing:-.7px;margin:4px 0}.section-intro{color:var(--muted);max-width:760px;margin:0}.tag{font-size:10px;border-radius:99px;padding:5px 9px;background:#edf1ff;color:#3154d8;font-weight:800;white-space:nowrap}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{padding:20px}.card h3{font-size:16px;margin:0 0 8px}.card p{margin:0;color:var(--muted);font-size:13px}.card ul{padding-left:18px;margin:10px 0 0;color:#46536a;font-size:13px}.card li{margin:4px 0}.iconbox{width:36px;height:36px;border-radius:11px;background:#edf1ff;color:var(--brand);display:grid;place-items:center;font-weight:900;margin-bottom:13px}
+.photo{width:100%;height:180px;object-fit:cover;border-radius:14px;margin-bottom:14px;background:#e8edf5}.photo-row{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.photo-row img{width:100%;height:145px;object-fit:cover;border-radius:14px}.caption{font-size:11px;color:var(--muted);margin-top:6px}
+.diagram{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;overflow:auto;box-shadow:var(--shadow)}.diagram svg{width:100%;min-width:680px;height:auto;display:block}.diagram-note{font-size:11px;color:var(--muted);margin:10px 3px 0}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:white;box-shadow:var(--shadow)}table{width:100%;border-collapse:collapse;min-width:650px;font-size:12px}th{text-align:left;background:#f7f8fb;color:#5e6a80;font-size:10px;text-transform:uppercase;letter-spacing:.7px;padding:13px 15px}td{padding:13px 15px;border-top:1px solid #edf0f4;color:#344056}td strong{color:#18243a}.code{background:#101a2e;color:#d9e5ff;padding:18px;border-radius:14px;overflow:auto;font:12px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
+.callout{padding:16px 18px;border-radius:14px;background:var(--mint);border:1px solid #d0eee1;color:#235c48;font-size:13px}.callout.warn{background:var(--amber);border-color:#f4e3bd;color:#77510e}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.step{background:white;border:1px solid var(--line);border-radius:13px;padding:15px;position:relative}.step b{display:block;font-size:12px;margin:7px 0 4px}.step p{font-size:11px;color:var(--muted);margin:0}.step .num{width:25px;height:25px;border-radius:8px;background:#edf1ff;color:var(--brand);display:grid;place-items:center;font-weight:850;font-size:11px}
+.timeline{border-left:2px solid #dbe3ff;margin-left:10px;padding-left:22px}.milestone{position:relative;margin:0 0 20px}.milestone:before{content:"";position:absolute;left:-29px;top:5px;width:10px;height:10px;background:var(--brand);border:3px solid #e9edff;border-radius:50%}.milestone h3{font-size:14px;margin:0 0 4px}.milestone p{font-size:12px;color:var(--muted);margin:0}
+.footer{border-top:1px solid var(--line);padding:24px 0;color:var(--muted);font-size:11px;display:flex;justify-content:space-between;gap:15px}
+@media(max-width:950px){.shell{grid-template-columns:1fr}.sidebar{position:relative;height:auto;padding:15px}.brand{padding-bottom:12px}.nav{display:flex;overflow:auto;gap:5px}.nav-label,.side-note{display:none}.nav a{white-space:nowrap}.hero{grid-template-columns:1fr}.hero-art{max-width:390px}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.topbar{padding:0 16px}.content{padding:22px 15px 50px}.grid2,.grid3{grid-template-columns:1fr}.photo-row{grid-template-columns:1fr 1fr}.photo-row img{height:115px}.flow{grid-template-columns:1fr 1fr}.section h2{font-size:23px}.stats{gap:8px}.stat{padding:13px}.stat strong{font-size:17px}.footer{display:block}.hero{padding:26px 22px}}
+@media print{.sidebar,.topbar,.hero-actions{display:none}.shell{display:block}.content{max-width:none;padding:0}.hero{print-color-adjust:exact}.card,.diagram,.table-wrap{box-shadow:none;break-inside:avoid}.section{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">R</div><div><strong>RetailOS</strong><small>POS MVP blueprint</small></div></div>
+  <div class="nav-label">BLUEPRINT</div>
+  <nav class="nav">
+    <a class="active" href="#overview"><span class="n">01</span> Overview</a>
+    <a href="#scope"><span class="n">02</span> MVP scope</a>
+    <a href="#architecture"><span class="n">03</span> Architecture</a>
+    <a href="#modules"><span class="n">04</span> Modules</a>
+    <a href="#data"><span class="n">05</span> Data model</a>
+    <a href="#barcode"><span class="n">06</span> Barcode scanning</a>
+    <a href="#workflows"><span class="n">07</span> Workflows</a>
+    <a href="#stock"><span class="n">08</span> Stock & batches</a>
+    <a href="#api"><span class="n">09</span> API design</a>
+    <a href="#roadmap"><span class="n">10</span> Roadmap</a>
+    <a href="#quality"><span class="n">11</span> Production readiness</a>
+  </nav>
+  <div class="side-note"><b>Architecture direction</b>Multi-tenant modular monolith · Clean Architecture · DDD · PostgreSQL</div>
+</aside>
+<main>
+  <div class="topbar"><div class="crumb">Product planning / <strong>POS MVP</strong></div><div class="top-right"><span class="pill">Architecture blueprint</span><span class="pill blue">Version 1.0</span></div></div>
+  <div class="content">
+    <section class="hero" id="overview">
+      <div>
+        <div class="eyebrow">Product & engineering blueprint</div>
+        <h1>A production-minded POS MVP, built to grow.</h1>
+        <p>A practical foundation for businesses to manage products, prices, batches, inventory, purchases, sales, refunds and reports — with barcode-first checkout and a modular architecture that can expand over time.</p>
+        <div class="hero-actions"><a class="btn" href="#scope">Explore MVP scope ↓</a><a class="btn ghost" href="#architecture">View architecture</a></div>
+      </div>
+      <div class="hero-art">
+        <div class="mock">
+          <div class="mock-head"><span>CHECKOUT · REGISTER 01</span><span>● LIVE</span></div>
+          <div class="mock-sub">Current sale</div><div class="mock-total">Rs. 560.00</div>
+          <div class="mock-row"><span>Paracetamol 500mg × 2</span><b>Rs. 200</b></div>
+          <div class="mock-row"><span>Paracetamol 500mg × 3</span><b>Rs. 360</b></div>
+          <div class="mock-foot"><span class="mock-sub">5 units · 2 batch allocations</span><span class="mock-pay">Complete sale</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="stats">
+      <div class="stat"><small>Architecture</small><strong>Modular monolith</strong><em>One deployable backend</em></div>
+      <div class="stat"><small>Backend</small><strong>Spring Boot</strong><em>Java + Clean Architecture</em></div>
+      <div class="stat"><small>Database</small><strong>PostgreSQL</strong><em>Transactional source of truth</em></div>
+      <div class="stat"><small>Frontend</small><strong>React + TypeScript</strong><em>POS + admin dashboard</em></div>
+    </div>
+
+    <section class="section" id="scope">
+      <div class="section-head"><div><div class="kicker">02 / Product scope</div><h2>What the MVP should deliver</h2><p class="section-intro">Focus on a complete business workflow rather than a large collection of disconnected features. The MVP should be valuable to a small or medium retailer on its first day.</p></div><span class="tag">MVP release</span></div>
+      <div class="grid3">
+        <article class="card"><div class="iconbox">01</div><h3>Business & users</h3><p>Register a business, configure branches and manage staff access.</p><ul><li>Business profile and settings</li><li>Branches and warehouses</li><li>Users, roles and permissions</li><li>Authentication and audit trail</li></ul></article>
+        <article class="card"><div class="iconbox">02</div><h3>Product catalog</h3><p>Maintain a clean catalog of products and sellable variants.</p><ul><li>Products, categories and brands</li><li>Variants, SKU and units</li><li>Multiple barcodes per variant</li><li>Product images and tax setup</li></ul></article>
+        <article class="card"><div class="iconbox">03</div><h3>Pricing & batches</h3><p>Support standard prices and batch-specific cost, price and expiry.</p><ul><li>Retail / wholesale price lists</li><li>Batch purchase cost</li><li>Optional batch selling price</li><li>Expiry and FEFO selection</li></ul></article>
+        <article class="card"><div class="iconbox">04</div><h3>Inventory</h3><p>Know what is available, where it is stored and why it changed.</p><ul><li>Stock balances and movements</li><li>Goods receiving and adjustments</li><li>Low-stock and expiry alerts</li><li>Transfers between locations</li></ul></article>
+        <article class="card"><div class="iconbox">05</div><h3>Sales & POS</h3><p>Fast checkout with scanning, payments and clear receipts.</p><ul><li>Barcode scan and product search</li><li>Cart, discounts and payments</li><li>Hold / resume bills</li><li>Receipt and sales history</li></ul></article>
+        <article class="card"><div class="iconbox">06</div><h3>Purchases & returns</h3><p>Connect stock intake and customer after-sales operations.</p><ul><li>Suppliers and purchase orders</li><li>Partial goods receiving</li><li>Returns, refunds and exchanges</li><li>Supplier returns</li></ul></article>
+        <article class="card"><div class="iconbox">07</div><h3>Reports & dashboard</h3><p>Give owners a clear view of business performance.</p><ul><li>Sales by date, product and category</li><li>Stock valuation and on-hand</li><li>Profit estimates</li><li>Returns, purchases and expiry</li></ul></article>
+        <article class="card"><div class="iconbox">08</div><h3>System & audit</h3><p>Protect sensitive operations and preserve business history.</p><ul><li>Activity and change history</li><li>Price and stock adjustment audit</li><li>Tenant-aware authorization</li><li>Backup and recovery processes</li></ul></article>
+        <article class="card"><div class="iconbox">+</div><h3>Future extensions</h3><p>Keep the core ready for optional capabilities.</p><ul><li>Offline POS and sync</li><li>Loyalty and CRM</li><li>Restaurant / pharmacy modules</li><li>Accounting and payment integrations</li></ul></article>
+      </div>
+    </section>
+
+    <section class="section" id="architecture">
+      <div class="section-head"><div><div class="kicker">03 / System architecture</div><h2>Modular monolith with Clean Architecture</h2><p class="section-intro">Deploy one Spring Boot application initially, but enforce business-module boundaries. This keeps operations simple while allowing modules to evolve independently.</p></div><span class="tag">Recommended</span></div>
+      <div class="diagram">
+        <svg viewBox="0 0 1040 570" role="img" aria-label="POS architecture diagram">
+          <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#7585a5" stroke-width="1.2"/></marker></defs>
+          <rect x="12" y="12" width="1016" height="92" rx="14" fill="#f1f4ff" stroke="#dbe3ff"/>
+          <text x="32" y="37" font-size="12" font-weight="700" fill="#3154d8">FRONTEND APPLICATIONS</text>
+          <rect x="42" y="52" width="250" height="38" rx="8" fill="#fff" stroke="#b9c8ff"/><text x="167" y="76" text-anchor="middle" font-size="13" fill="#172033">POS / Cashier interface</text>
+          <rect x="340" y="52" width="290" height="38" rx="8" fill="#fff" stroke="#b9c8ff"/><text x="485" y="76" text-anchor="middle" font-size="13" fill="#172033">Business Admin Dashboard</text>
+          <rect x="678" y="52" width="320" height="38" rx="8" fill="#fff" stroke="#b9c8ff"/><text x="838" y="76" text-anchor="middle" font-size="13" fill="#172033">Barcode scanner / camera input</text>
+          <path d="M167 104 V130 M485 104 V130 M838 104 V130" stroke="#7585a5" stroke-width="1.5" marker-end="url(#arr)"/>
+          <rect x="12" y="132" width="1016" height="330" rx="14" fill="#f8faff" stroke="#d8e0ed"/>
+          <text x="32" y="157" font-size="12" font-weight="700" fill="#3154d8">SPRING BOOT MODULAR MONOLITH</text>
+          <rect x="42" y="174" width="956" height="45" rx="8" fill="#172b56"/><text x="520" y="202" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">REST API · Authentication · Tenant Context · Validation</text>
+          <g font-size="12" text-anchor="middle" fill="#1c2940">
+            <rect x="42" y="242" width="218" height="72" rx="9" fill="#e8edff" stroke="#c8d3ff"/><text x="151" y="269" font-weight="700">Business & Identity</text><text x="151" y="290" font-size="10">Tenant · Branch · Users · RBAC</text>
+            <rect x="280" y="242" width="218" height="72" rx="9" fill="#e8edff" stroke="#c8d3ff"/><text x="389" y="269" font-weight="700">Catalog & Pricing</text><text x="389" y="290" font-size="10">Products · Variants · Barcode · Price</text>
+            <rect x="518" y="242" width="218" height="72" rx="9" fill="#e8edff" stroke="#c8d3ff"/><text x="627" y="269" font-weight="700">Inventory & Purchasing</text><text x="627" y="290" font-size="10">Batches · Stock · Suppliers · Receiving</text>
+            <rect x="756" y="242" width="242" height="72" rx="9" fill="#e8edff" stroke="#c8d3ff"/><text x="877" y="269" font-weight="700">Sales & Returns</text><text x="877" y="290" font-size="10">Checkout · Payments · Refunds · Exchange</text>
+            <rect x="42" y="333" width="300" height="67" rx="9" fill="#eaf7f2" stroke="#c6e8db"/><text x="192" y="360" font-weight="700">Reporting</text><text x="192" y="380" font-size="10">Read models · Summaries · Exports</text>
+            <rect x="370" y="333" width="300" height="67" rx="9" fill="#eaf7f2" stroke="#c6e8db"/><text x="520" y="360" font-weight="700">Domain Events & Outbox</text><text x="520" y="380" font-size="10">Reliable post-commit processing</text>
+            <rect x="698" y="333" width="300" height="67" rx="9" fill="#eaf7f2" stroke="#c6e8db"/><text x="848" y="360" font-weight="700">Audit & Observability</text><text x="848" y="380" font-size="10">Audit trail · Logs · Metrics · Traces</text>
+          </g>
+          <path d="M520 219 V232 M151 314 V326 M389 314 V326 M627 314 V326 M877 314 V326" stroke="#7585a5" stroke-width="1.2" marker-end="url(#arr)"/>
+          <path d="M192 400 V477 M520 400 V477 M848 400 V477" stroke="#7585a5" stroke-width="1.5" marker-end="url(#arr)"/>
+          <rect x="12" y="480" width="1016" height="78" rx="14" fill="#fff" stroke="#d8e0ed"/>
+          <text x="32" y="504" font-size="12" font-weight="700" fill="#3154d8">INFRASTRUCTURE</text>
+          <rect x="42" y="515" width="270" height="32" rx="7" fill="#fff5df" stroke="#f0dfb8"/><text x="177" y="536" text-anchor="middle" font-size="11" fill="#77510e">PostgreSQL · Flyway</text>
+          <rect x="385" y="515" width="270" height="32" rx="7" fill="#fff5df" stroke="#f0dfb8"/><text x="520" y="536" text-anchor="middle" font-size="11" fill="#77510e">Redis (when justified)</text>
+          <rect x="728" y="515" width="270" height="32" rx="7" fill="#fff5df" stroke="#f0dfb8"/><text x="863" y="536" text-anchor="middle" font-size="11" fill="#77510e">Object storage · Backups</text>
+        </svg>
+        <p class="diagram-note">Conceptual deployment view. Modules share one application process and database initially, but should own their domain logic and expose explicit application interfaces.</p>
+      </div>
+      <div class="grid2" style="margin-top:15px">
+        <article class="card"><h3>Why a modular monolith?</h3><ul><li>Simple deployment and lower infrastructure cost.</li><li>Database transactions for sales and stock.</li><li>Clear module boundaries for maintainability.</li><li>Extract a module into a service only when scale or team ownership requires it.</li></ul></article>
+        <article class="card"><h3>Clean Architecture inside each module</h3><ul><li><b>Domain:</b> entities, value objects and business rules.</li><li><b>Application:</b> use cases, commands, queries and ports.</li><li><b>Infrastructure:</b> JPA, repositories and external adapters.</li><li><b>Presentation:</b> REST controllers and request/response DTOs.</li></ul></article>
+      </div>
+    </section>
+
+    <section class="section" id="modules">
+      <div class="section-head"><div><div class="kicker">04 / Module boundaries</div><h2>Organize code around business capabilities</h2><p class="section-intro">Avoid a project-wide controller/service/repository structure. Each module should own its rules, data access and public application contracts.</p></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Module</th><th>Responsibilities</th><th>Key dependencies</th><th>MVP priority</th></tr></thead><tbody>
+      <tr><td><strong>Business & Identity</strong></td><td>Tenant, branch, users, roles, permissions, authentication</td><td>Shared security / tenant context</td><td><span class="tag">P0</span></td></tr>
+      <tr><td><strong>Catalog</strong></td><td>Products, categories, variants, units, SKUs, barcodes</td><td>Business</td><td><span class="tag">P0</span></td></tr>
+      <tr><td><strong>Pricing</strong></td><td>Price lists, effective dates, batch price override, price history</td><td>Catalog</td><td><span class="tag">P0</span></td></tr>
+      <tr><td><strong>Inventory</strong></td><td>Stock balances, batches, movements, adjustments, transfers</td><td>Catalog, Pricing</td><td><span class="tag">P0</span></td></tr>
+      <tr><td><strong>Purchasing</strong></td><td>Suppliers, purchase orders, goods receipts, supplier returns</td><td>Catalog, Inventory</td><td><span class="tag">P1</span></td></tr>
+      <tr><td><strong>Sales</strong></td><td>Cart, checkout, payments, sale items, batch allocations, refunds, exchanges</td><td>Catalog, Pricing, Inventory</td><td><span class="tag">P0</span></td></tr>
+      <tr><td><strong>Reporting</strong></td><td>Sales, stock, purchasing, margin and expiry reports</td><td>Read models / events</td><td><span class="tag">P1</span></td></tr>
+      <tr><td><strong>Audit</strong></td><td>Who changed what and when; sensitive action history</td><td>All modules publish audit-relevant events</td><td><span class="tag">P0</span></td></tr>
+      </tbody></table></div>
+      <div class="callout" style="margin-top:14px"><b>Boundary rule:</b> Sales should not update inventory tables directly. It should call an Inventory use case such as <code>AllocateStock</code> / <code>CommitStockDeduction</code>. Cross-module communication should use explicit interfaces or events.</div>
+    </section>
+
+    <section class="section" id="data">
+      <div class="section-head"><div><div class="kicker">05 / Data model</div><h2>Core ER diagram</h2><p class="section-intro">The logical model connects tenant ownership, catalog, price lists, batches, purchasing, sales and batch-level sale allocations.</p></div></div>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 720" role="img" aria-label="Core POS entity relationship diagram">
+          <defs><marker id="erarr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6" fill="none" stroke="#8a96aa" stroke-width="1"/></marker></defs>
+          <g stroke="#a6b1c2" stroke-width="1.3" fill="none" marker-end="url(#erarr)">
+            <path d="M170 90 V135 H160 V170"/><path d="M170 90 V135 H420 V170"/><path d="M420 240 V280"/><path d="M420 350 V390"/><path d="M420 460 V500"/>
+            <path d="M620 315 H700 V180"/><path d="M620 425 H700 V180"/><path d="M620 425 H700 V330"/><path d="M820 220 V270"/><path d="M820 340 V390"/>
+            <path d="M420 570 H540 V620"/><path d="M820 460 V520 H690 V620"/><path d="M820 460 V520 H930 V620"/>
+          </g>
+          <g font-family="Arial,sans-serif" font-size="12">
+            <g><rect x="75" y="25" width="190" height="65" rx="8" fill="#eaf0ff" stroke="#9fb3ff"/><text x="170" y="49" text-anchor="middle" font-weight="bold" fill="#1d347c">TENANT</text><text x="170" y="68" text-anchor="middle" fill="#53617a" font-size="10">id · name · status</text></g>
+            <g><rect x="75" y="170" width="170" height="70" rx="8" fill="#f7f8fb" stroke="#cbd3df"/><text x="160" y="195" text-anchor="middle" font-weight="bold">BRANCH</text><text x="160" y="216" text-anchor="middle" fill="#657187" font-size="10">id · tenant_id · name</text></g>
+            <g><rect x="330" y="170" width="180" height="70" rx="8" fill="#eaf0ff" stroke="#9fb3ff"/><text x="420" y="195" text-anchor="middle" font-weight="bold" fill="#1d347c">PRODUCT</text><text x="420" y="216" text-anchor="middle" fill="#53617a" font-size="10">id · tenant_id · name</text></g>
+            <g><rect x="330" y="280" width="180" height="70" rx="8" fill="#eaf0ff" stroke="#9fb3ff"/><text x="420" y="305" text-anchor="middle" font-weight="bold" fill="#1d347c">PRODUCT_VARIANT</text><text x="420" y="326" text-anchor="middle" fill="#53617a" font-size="10">id · product_id · SKU</text></g>
+            <g><rect x="330" y="390" width="180" height="70" rx="8" fill="#fff5df" stroke="#e9d29e"/><text x="420" y="415" text-anchor="middle" font-weight="bold" fill="#77510e">INVENTORY_BATCH</text><text x="420" y="436" text-anchor="middle" fill="#806b46" font-size="10">batch · expiry · cost · price</text></g>
+            <g><rect x="330" y="500" width="180" height="70" rx="8" fill="#fff5df" stroke="#e9d29e"/><text x="420" y="525" text-anchor="middle" font-weight="bold" fill="#77510e">STOCK_MOVEMENT</text><text x="420" y="546" text-anchor="middle" fill="#806b46" font-size="10">batch_id · type · quantity</text></g>
+            <g><rect x="700" y="110" width="240" height="70" rx="8" fill="#f0ebff" stroke="#c9b9ff"/><text x="820" y="135" text-anchor="middle" font-weight="bold" fill="#5733a5">PRODUCT_PRICE / PRICE_LIST</text><text x="820" y="156" text-anchor="middle" fill="#685b84" font-size="10">variant · price list · effective dates</text></g>
+            <g><rect x="700" y="270" width="240" height="70" rx="8" fill="#f0ebff" stroke="#c9b9ff"/><text x="820" y="295" text-anchor="middle" font-weight="bold" fill="#5733a5">PRODUCT_BARCODE</text><text x="820" y="316" text-anchor="middle" fill="#685b84" font-size="10">variant_id · barcode · type</text></g>
+            <g><rect x="700" y="390" width="240" height="70" rx="8" fill="#eaf7f2" stroke="#b9e3d1"/><text x="820" y="415" text-anchor="middle" font-weight="bold" fill="#17664a">SALE / SALE_ITEM</text><text x="820" y="436" text-anchor="middle" fill="#55796b" font-size="10">sale · variant · qty · price snapshot</text></g>
+            <g><rect x="545" y="620" width="220" height="70" rx="8" fill="#eaf7f2" stroke="#b9e3d1"/><text x="655" y="645" text-anchor="middle" font-weight="bold" fill="#17664a">SALE_ITEM_ALLOCATION</text><text x="655" y="666" text-anchor="middle" fill="#55796b" font-size="10">sale_item · batch · qty · price</text></g>
+            <g><rect x="830" y="620" width="190" height="70" rx="8" fill="#f7f8fb" stroke="#cbd3df"/><text x="925" y="645" text-anchor="middle" font-weight="bold">PAYMENT / REFUND</text><text x="925" y="666" text-anchor="middle" fill="#657187" font-size="10">financial transaction records</text></g>
+          </g>
+        </svg>
+        <p class="diagram-note">Simplified logical ERD for discussion. A complete implementation also needs supplier, purchase order, goods receipt, warehouse, stock balance, return item, exchange, user/role and audit entities.</p>
+      </div>
+      <h3 style="margin:25px 0 12px">Important entity responsibilities</h3>
+      <div class="table-wrap"><table><thead><tr><th>Entity</th><th>What it represents</th><th>Important fields</th></tr></thead><tbody>
+      <tr><td><strong>PRODUCT</strong></td><td>Common product identity</td><td>tenant_id, name, category_id, brand_id, tracking flags</td></tr>
+      <tr><td><strong>PRODUCT_VARIANT</strong></td><td>Sellable configuration</td><td>product_id, SKU, variant attributes, unit</td></tr>
+      <tr><td><strong>PRODUCT_PRICE</strong></td><td>Standard price by price list</td><td>variant_id, price_list_id, amount, currency, effective dates</td></tr>
+      <tr><td><strong>PRODUCT_BARCODE</strong></td><td>Scannable identifier(s)</td><td>variant_id, barcode, symbology, source</td></tr>
+      <tr><td><strong>INVENTORY_BATCH</strong></td><td>Received lot of stock</td><td>variant_id, warehouse_id, batch_number, expiry, cost, optional selling price</td></tr>
+      <tr><td><strong>STOCK_BALANCE</strong></td><td>Current quantity projection</td><td>warehouse_id, variant_id, batch_id, on_hand, reserved</td></tr>
+      <tr><td><strong>STOCK_MOVEMENT</strong></td><td>Auditable stock change</td><td>batch_id, movement_type, quantity_delta, reference</td></tr>
+      <tr><td><strong>SALE_ITEM_ALLOCATION</strong></td><td>Which batch fulfilled a sale line</td><td>sale_item_id, batch_id, quantity, actual unit price, cost snapshot</td></tr>
+      </tbody></table></div>
+      <div class="callout warn" style="margin-top:14px"><b>Data integrity:</b> Keep a stock movement ledger and update the stock balance in the same database transaction. Use database constraints and locking to prevent overselling. A balance is a fast current-state projection; the movement ledger explains how it got there.</div>
+    </section>
+
+    <section class="section" id="barcode">
+      <div class="section-head"><div><div class="kicker">06 / Barcode capability</div><h2>Scan, identify and add to cart</h2><p class="section-intro">Treat barcode scanning as an input method. The internal catalog remains authoritative; external lookup is an optional assistant for product registration.</p></div></div>
+      <div class="photo-row">
+        <div><img src="https://images.unsplash.com/photo-1580913428735-bd3c269d6a82?auto=format&fit=crop&w=700&q=80" alt="Retail checkout equipment"><div class="caption">Retail checkout equipment</div></div>
+        <div><img src="https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=700&q=80" alt="Packaged consumer products"><div class="caption">Packaged products</div></div>
+        <div><img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=700&q=80" alt="Pharmacy products"><div class="caption">Expiry-sensitive products</div></div>
+      </div>
+      <div class="grid2" style="margin-top:16px">
+        <article class="card"><h3>Hardware scanner</h3><p>Most USB and Bluetooth scanners act like a keyboard: they type the barcode into a focused input and send Enter. This is the simplest MVP path.</p></article>
+        <article class="card"><h3>Camera scanner</h3><p>Add browser camera scanning later using a supported barcode decoding library. Keep it behind the same frontend scanning interface.</p></article>
+      </div>
+      <div class="diagram" style="margin-top:15px">
+        <svg viewBox="0 0 1000 260" role="img" aria-label="Barcode lookup flow">
+          <defs><marker id="barrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#7887a1" stroke-width="1.2"/></marker></defs>
+          <g stroke="#7887a1" stroke-width="1.5" fill="none" marker-end="url(#barrow)"><path d="M170 112 H235"/><path d="M405 112 H470"/><path d="M640 112 H705"/></g>
+          <g font-family="Arial" text-anchor="middle">
+            <rect x="15" y="65" width="155" height="95" rx="12" fill="#edf1ff" stroke="#cbd6ff"/><text x="92" y="98" font-size="13" font-weight="bold" fill="#2345b8">1. Scan barcode</text><text x="92" y="120" font-size="10" fill="#56627a">USB / Bluetooth</text><text x="92" y="136" font-size="10" fill="#56627a">or camera</text>
+            <rect x="235" y="65" width="170" height="95" rx="12" fill="#edf1ff" stroke="#cbd6ff"/><text x="320" y="98" font-size="13" font-weight="bold" fill="#2345b8">2. Internal lookup</text><text x="320" y="120" font-size="10" fill="#56627a">Find barcode → variant</text><text x="320" y="136" font-size="10" fill="#56627a">check tenant scope</text>
+            <rect x="470" y="65" width="170" height="95" rx="12" fill="#eaf7f2" stroke="#bfe5d5"/><text x="555" y="98" font-size="13" font-weight="bold" fill="#17664a">3. Product found?</text><text x="555" y="120" font-size="10" fill="#55796b">Yes: load price / stock</text><text x="555" y="136" font-size="10" fill="#55796b">No: optional lookup</text>
+            <rect x="705" y="65" width="275" height="95" rx="12" fill="#fff5df" stroke="#eedcb4"/><text x="842" y="98" font-size="13" font-weight="bold" fill="#77510e">4. Add or register</text><text x="842" y="120" font-size="10" fill="#806b46">Add to cart, or review suggested</text><text x="842" y="136" font-size="10" fill="#806b46">details before saving new product</text>
+          </g>
+          <text x="500" y="220" text-anchor="middle" font-size="11" fill="#68758a">External catalog data is a suggestion — never trust it for business price, cost, stock or expiry.</text>
+        </svg>
+      </div>
+      <div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>Barcode format</th><th>MVP approach</th><th>Notes</th></tr></thead><tbody>
+      <tr><td>EAN-13 / EAN-8</td><td>Support</td><td>Common retail product identifiers</td></tr><tr><td>UPC-A</td><td>Support</td><td>Common North American retail format</td></tr><tr><td>Code 128</td><td>Support</td><td>Often used for internal labels</td></tr><tr><td>QR</td><td>Basic support</td><td>Can encode URLs or application-specific data</td></tr><tr><td>GS1 DataMatrix</td><td>Later extension</td><td>Can encode GTIN, batch and expiry application identifiers</td></tr>
+      </tbody></table></div>
+      <p class="section-intro" style="margin-top:12px">Potential external sources: Open Food Facts for food products; GS1 standards and services for product identification. Coverage, licensing and regional availability must be checked before choosing a provider.</p>
+    </section>
+
+    <section class="section" id="workflows">
+      <div class="section-head"><div><div class="kicker">07 / Core workflows</div><h2>End-to-end business operations</h2><p class="section-intro">These flows define what “working MVP” means. Each critical operation should be transactional, auditable and idempotent where retries are possible.</p></div></div>
+      <h3>Goods receiving creates batches</h3>
+      <div class="flow">
+        <div class="step"><div class="num">1</div><b>Create purchase order</b><p>Select supplier, variants, ordered quantities and expected cost.</p></div>
+        <div class="step"><div class="num">2</div><b>Receive goods</b><p>Record actual received quantities; allow partial receiving.</p></div>
+        <div class="step"><div class="num">3</div><b>Capture batch details</b><p>Batch number, expiry, purchase cost and optional selling price.</p></div>
+        <div class="step"><div class="num">4</div><b>Post receipt</b><p>Create batches, stock movements and update balances atomically.</p></div>
+      </div>
+      <h3 style="margin-top:28px">Checkout and batch allocation</h3>
+      <div class="diagram">
+        <svg viewBox="0 0 1000 320" role="img" aria-label="Sale checkout sequence">
+          <defs><marker id="seqarr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#74839d" stroke-width="1.2"/></marker></defs>
+          <g font-family="Arial" font-size="12" text-anchor="middle">
+            <rect x="20" y="15" width="160" height="38" rx="8" fill="#edf1ff" stroke="#cbd6ff"/><text x="100" y="39" fill="#2345b8" font-weight="bold">Cashier / POS</text>
+            <rect x="220" y="15" width="160" height="38" rx="8" fill="#edf1ff" stroke="#cbd6ff"/><text x="300" y="39" fill="#2345b8" font-weight="bold">Sales use case</text>
+            <rect x="420" y="15" width="160" height="38" rx="8" fill="#fff5df" stroke="#eedcb4"/><text x="500" y="39" fill="#77510e" font-weight="bold">Inventory</text>
+            <rect x="620" y="15" width="160" height="38" rx="8" fill="#eaf7f2" stroke="#bfe5d5"/><text x="700" y="39" fill="#17664a" font-weight="bold">PostgreSQL</text>
+            <rect x="820" y="15" width="160" height="38" rx="8" fill="#f0ebff" stroke="#d4c9f5"/><text x="900" y="39" fill="#5733a5" font-weight="bold">Outbox / reports</text>
+          </g>
+          <g stroke="#c2cad7" stroke-dasharray="5 5"><path d="M100 53 V285"/><path d="M300 53 V285"/><path d="M500 53 V285"/><path d="M700 53 V285"/><path d="M900 53 V285"/></g>
+          <g stroke="#74839d" stroke-width="1.4" fill="none" marker-end="url(#seqarr)">
+            <path d="M100 82 H300"/><path d="M300 122 H500"/><path d="M500 162 H700"/><path d="M700 202 H500"/><path d="M500 242 H700"/><path d="M700 270 H900"/>
+          </g>
+          <g font-family="Arial" font-size="11" fill="#354158">
+            <text x="200" y="74" text-anchor="middle">Complete sale</text><text x="400" y="114" text-anchor="middle">Allocate eligible batches</text><text x="600" y="154" text-anchor="middle">Lock / validate stock</text><text x="600" y="194" text-anchor="middle">Allocation result</text><text x="600" y="234" text-anchor="middle">Persist sale + movements</text><text x="800" y="262" text-anchor="middle">Publish after commit</text>
+          </g>
+        </svg>
+      </div>
+      <div class="callout" style="margin-top:14px"><b>Transaction boundary:</b> Save sale, sale items, payment records, stock deductions, batch allocations and outbox event in one database transaction. External payment provider calls are not part of a database transaction; use payment states, idempotency keys and reconciliation for uncertain outcomes.</div>
+      <h3 style="margin-top:28px">Returns, refunds and exchanges</h3>
+      <div class="grid3">
+        <article class="card"><h3>Customer return</h3><p>Reference the original sale item, returned quantity and original batch allocation where traceable. Inspect condition before restocking.</p></article>
+        <article class="card"><h3>Refund</h3><p>Record the refund as a separate financial transaction linked to the original payment/sale. Preserve the original sale.</p></article>
+        <article class="card"><h3>Exchange</h3><p>Model as a linked return plus a replacement sale. Collect or refund the price difference explicitly.</p></article>
+      </div>
+    </section>
+
+    <section class="section" id="stock">
+      <div class="section-head"><div><div class="kicker">08 / Stock & batch design</div><h2>Batch-aware stock and price handling</h2><p class="section-intro">A product variant may have many batches. Each batch can have its own expiry and purchase cost, plus an optional selling-price override.</p></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Batch</th><th>Expiry</th><th>Available</th><th>Purchase cost</th><th>Batch selling price</th></tr></thead><tbody>
+      <tr><td><strong>B001</strong></td><td>30 Jan 2027</td><td>100</td><td>Rs. 80</td><td>Rs. 100</td></tr>
+      <tr><td><strong>B002</strong></td><td>15 Aug 2027</td><td>150</td><td>Rs. 90</td><td>Rs. 120</td></tr>
+      <tr><td><strong>B003</strong></td><td>10 Feb 2028</td><td>200</td><td>Rs. 95</td><td>Use default price</td></tr>
+      </tbody></table></div>
+      <div class="grid2" style="margin-top:15px">
+        <article class="card"><h3>Price resolution</h3><ol style="padding-left:18px;font-size:13px;color:#46536a"><li>Resolve the active price list for the branch/customer.</li><li>If the allocated batch has a valid selling-price override, use it.</li><li>Otherwise use the applicable product variant price.</li><li>Apply authorized discounts and tax rules.</li><li>Snapshot the final price and cost on the sale allocation.</li></ol></article>
+        <article class="card"><h3>FEFO allocation</h3><p>First Expiry, First Out is a good default for expiry-tracked stock.</p><ul><li>Exclude expired, blocked or quarantined batches.</li><li>Sort eligible batches by expiry date.</li><li>Allocate until the requested quantity is fulfilled.</li><li>Allow manual batch choice only under configured policy and permissions.</li></ul></article>
+      </div>
+      <div class="callout warn" style="margin-top:14px"><b>Important:</b> If one sale line is fulfilled from two batches at different prices, keep one logical sale item and create two sale-item allocation records. For example: 2 × Rs. 100 + 3 × Rs. 120 = Rs. 560. Preserve each allocation's batch, quantity, price and cost snapshot.</div>
+      <h3 style="margin-top:25px">Stock visibility</h3>
+      <div class="diagram">
+        <svg viewBox="0 0 950 210" role="img" aria-label="Stock update notification architecture">
+          <defs><marker id="starr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#74839d" stroke-width="1.2"/></marker></defs>
+          <g font-family="Arial" text-anchor="middle">
+            <rect x="15" y="60" width="170" height="85" rx="12" fill="#edf1ff" stroke="#cbd6ff"/><text x="100" y="92" font-size="13" font-weight="bold" fill="#2345b8">Cashier completes</text><text x="100" y="112" font-size="11" fill="#56627a">a sale</text>
+            <rect x="260" y="60" width="180" height="85" rx="12" fill="#fff5df" stroke="#eedcb4"/><text x="350" y="92" font-size="13" font-weight="bold" fill="#77510e">PostgreSQL</text><text x="350" y="112" font-size="11" fill="#806b46">transaction commits</text>
+            <rect x="515" y="60" width="180" height="85" rx="12" fill="#eaf7f2" stroke="#bfe5d5"/><text x="605" y="92" font-size="13" font-weight="bold" fill="#17664a">Outbox / event</text><text x="605" y="112" font-size="11" fill="#55796b">stock updated</text>
+            <rect x="770" y="15" width="165" height="60" rx="10" fill="#f0ebff" stroke="#d4c9f5"/><text x="852" y="40" font-size="12" font-weight="bold" fill="#5733a5">Other POS screens</text><text x="852" y="57" font-size="10" fill="#685b84">SSE / WebSocket</text>
+            <rect x="770" y="125" width="165" height="60" rx="10" fill="#f0ebff" stroke="#d4c9f5"/><text x="852" y="150" font-size="12" font-weight="bold" fill="#5733a5">Admin dashboard</text><text x="852" y="167" font-size="10" fill="#685b84">updated stock view</text>
+          </g>
+          <g stroke="#74839d" stroke-width="1.4" fill="none" marker-end="url(#starr)"><path d="M185 102 H260"/><path d="M440 102 H515"/><path d="M695 88 H730 V45 H770"/><path d="M695 118 H730 V155 H770"/></g>
+        </svg>
+      </div>
+      <p class="section-intro" style="margin-top:12px">The database is authoritative. Push updates are notifications to refresh views, not the mechanism that guarantees stock correctness. Use row locking or carefully designed optimistic concurrency for competing sales.</p>
+    </section>
+
+    <section class="section" id="api">
+      <div class="section-head"><div><div class="kicker">09 / API outline</div><h2>REST API starting point</h2><p class="section-intro">Keep APIs grouped by module, versioned and consistent. Use pagination, validation, idempotency for critical writes and tenant-aware authorization.</p></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Capability</th><th>Method</th><th>Endpoint example</th></tr></thead><tbody>
+      <tr><td>Login</td><td>POST</td><td><code>/api/v1/auth/login</code></td></tr>
+      <tr><td>Register business</td><td>POST</td><td><code>/api/v1/businesses</code></td></tr>
+      <tr><td>Manage users</td><td>GET / POST</td><td><code>/api/v1/users</code></td></tr>
+      <tr><td>Create product</td><td>POST</td><td><code>/api/v1/products</code></td></tr>
+      <tr><td>Register variant</td><td>POST</td><td><code>/api/v1/products/{id}/variants</code></td></tr>
+      <tr><td>Barcode lookup</td><td>GET</td><td><code>/api/v1/products/barcode/{code}</code></td></tr>
+      <tr><td>External barcode lookup</td><td>GET</td><td><code>/api/v1/barcode-lookup/{code}</code></td></tr>
+      <tr><td>Receive goods</td><td>POST</td><td><code>/api/v1/goods-receipts</code></td></tr>
+      <tr><td>View stock</td><td>GET</td><td><code>/api/v1/inventory/stock</code></td></tr>
+      <tr><td>Complete sale</td><td>POST</td><td><code>/api/v1/sales</code></td></tr>
+      <tr><td>Process refund</td><td>POST</td><td><code>/api/v1/refunds</code></td></tr>
+      <tr><td>Sales report</td><td>GET</td><td><code>/api/v1/reports/sales</code></td></tr>
+      </tbody></table></div>
+      <h3 style="margin:24px 0 10px">Example complete-sale request</h3>
+      <pre class="code">POST /api/v1/sales
+Idempotency-Key: 7f8a...unique-request-id
+
+{
+  "branchId": "branch-uuid",
+  "items": [
+    {
+      "variantId": "variant-uuid",
+      "quantity": 5,
+      "batchAllocations": [
+        { "batchId": "batch-001", "quantity": 2 },
+        { "batchId": "batch-002", "quantity": 3 }
+      ]
+    }
+  ],
+  "payments": [
+    { "method": "CASH", "amount": 560.00 }
+  ]
+}</pre>
+      <p class="section-intro" style="margin-top:10px">The server must revalidate price, tax, permissions, batch eligibility and stock. Never trust client-submitted totals or treat a client-selected batch as automatically valid.</p>
+    </section>
+
+    <section class="section" id="roadmap">
+      <div class="section-head"><div><div class="kicker">10 / Delivery plan</div><h2>Build in vertical slices</h2><p class="section-intro">Each phase should finish with a testable workflow. Sprint lengths are planning placeholders, not delivery promises.</p></div></div>
+      <div class="grid2">
+        <div class="card"><div class="timeline">
+          <div class="milestone"><h3>Phase 1 · Foundation</h3><p>Project setup, tenant, branch, users, RBAC, migrations, audit foundation.</p></div>
+          <div class="milestone"><h3>Phase 2 · Catalog & barcode</h3><p>Categories, products, variants, SKU, barcode scanning, price lists.</p></div>
+          <div class="milestone"><h3>Phase 3 · Inventory & purchasing</h3><p>Suppliers, purchase orders, goods receiving, batches, movements and balances.</p></div>
+        </div></div>
+        <div class="card"><div class="timeline">
+          <div class="milestone"><h3>Phase 4 · Sales & POS</h3><p>Scan-to-cart, checkout, batch allocation, payment records, receipts.</p></div>
+          <div class="milestone"><h3>Phase 5 · Returns & reports</h3><p>Returns, refunds, exchanges, sales and inventory reporting.</p></div>
+          <div class="milestone"><h3>Phase 6 · Production hardening</h3><p>Load tests, security tests, backup restore, monitoring, deployment and support runbooks.</p></div>
+        </div></div>
+      </div>
+      <h3 style="margin-top:24px">Future releases</h3>
+      <div class="table-wrap"><table><thead><tr><th>Release</th><th>Potential capability</th></tr></thead><tbody>
+      <tr><td>V1.1</td><td>Advanced multi-branch stock transfers and centralized purchasing</td></tr>
+      <tr><td>V1.2</td><td>Offline POS and conflict-aware synchronization</td></tr>
+      <tr><td>V1.3</td><td>Customer CRM, loyalty and promotions</td></tr>
+      <tr><td>V1.4</td><td>Payment gateways and accounting integrations</td></tr>
+      <tr><td>V1.5</td><td>Restaurant, pharmacy and salon industry extensions</td></tr>
+      <tr><td>V1.6</td><td>Forecasting and advanced analytics</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="section" id="quality">
+      <div class="section-head"><div><div class="kicker">11 / Production readiness</div><h2>What makes it production-ready?</h2><p class="section-intro">Production readiness is not just architecture. It means protecting money, inventory, tenant data and operational continuity.</p></div></div>
+      <div class="grid3">
+        <article class="card"><h3>Data integrity</h3><ul><li>Money stored as DECIMAL / NUMERIC, never float.</li><li>Database transactions for sale + stock.</li><li>Idempotency for retried writes.</li><li>Immutable financial and stock history.</li></ul></article>
+        <article class="card"><h3>Security</h3><ul><li>Tenant isolation on every query and command.</li><li>RBAC and branch-level access.</li><li>Secure password hashing and token handling.</li><li>No raw card number or CVV storage.</li></ul></article>
+        <article class="card"><h3>Operations</h3><ul><li>Automated backups and restore drills.</li><li>Structured logs, metrics and traces.</li><li>Health checks and alerting.</li><li>Deployment rollback and migration plan.</li></ul></article>
+        <article class="card"><h3>Concurrency</h3><ul><li>Lock or version stock balances.</li><li>Prevent overselling.</li><li>Unique receipt / request identifiers.</li><li>Reconcile payment uncertainty.</li></ul></article>
+        <article class="card"><h3>Testing</h3><ul><li>Domain unit tests.</li><li>PostgreSQL integration tests.</li><li>Multi-tenant isolation tests.</li><li>Concurrent sale and refund tests.</li></ul></article>
+        <article class="card"><h3>Compliance</h3><ul><li>Use a compliant payment provider.</li><li>Assess PCI DSS obligations.</li><li>Respect local tax and invoice rules.</li><li>Define retention and privacy policies.</li></ul></article>
+      </div>
+      <div class="callout warn" style="margin-top:16px"><b>Scope warning — offline mode:</b> Do not promise offline sales in the first release unless you design and test local transaction storage, device identity, idempotent sync, price validity and stock conflict policies. Offline card payments require explicit payment-provider support.</div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><div class="kicker">12 / MVP success criteria</div><h2>The first sellable workflow</h2><p class="section-intro">A customer should be able to use the system to complete the following journey without manual database intervention.</p></div></div>
+      <div class="flow">
+        <div class="step"><div class="num">01</div><b>Register business</b><p>Create tenant, branch, warehouse and staff accounts.</p></div>
+        <div class="step"><div class="num">02</div><b>Add products</b><p>Create variants, prices and barcodes.</p></div>
+        <div class="step"><div class="num">03</div><b>Receive stock</b><p>Receive goods into batches with cost and expiry.</p></div>
+        <div class="step"><div class="num">04</div><b>Scan & sell</b><p>Scan barcode, allocate stock, take payment and issue receipt.</p></div>
+      </div>
+      <div class="flow" style="margin-top:10px">
+        <div class="step"><div class="num">05</div><b>Track stock</b><p>See accurate balances and movement history.</p></div>
+        <div class="step"><div class="num">06</div><b>Return / refund</b><p>Reference the original sale and inspect returned goods.</p></div>
+        <div class="step"><div class="num">07</div><b>Review reports</b><p>View sales, stock, margin and expiry information.</p></div>
+        <div class="step"><div class="num">08</div><b>Audit operations</b><p>Trace who performed important actions.</p></div>
+      </div>
+    </section>
+    <div class="footer"><span>RetailOS · POS MVP architecture blueprint</span><span>Prepared as a planning artifact · Validate tax, payment and privacy requirements for each market.</span></div>
+  </div>
+</main>
+</div>
+</body>
+</html>
